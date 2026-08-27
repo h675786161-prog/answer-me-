@@ -78,6 +78,14 @@
     cursor: not-allowed;
 }
 
+.answer-me-profile[data-answer-me-current] {
+    background: rgba(127,127,127,.13);
+}
+
+.answer-me-profile[data-answer-me-current] input {
+    opacity: .7;
+}
+
 .answer-me-profile-main {
     display: flex;
     flex-direction: column;
@@ -136,68 +144,100 @@
     margin: 7px 0;
 }
 
+/* ===== Floating race HUD ===== */
 .answer-me-float {
     position: fixed;
     right: 14px;
     bottom: 72px;
     z-index: 9999;
-    width: min(410px, calc(100vw - 24px));
-    max-height: min(50vh, 450px);
+    width: min(360px, calc(100vw - 24px));
+    max-height: min(46vh, 410px);
     overflow: hidden;
-    border-radius: 13px;
+    border-radius: 14px;
     border: 1px solid var(--SmartThemeBorderColor, rgba(255,255,255,.16));
     background: color-mix(in srgb, var(--SmartThemeBlurTintColor, #181818) 94%, transparent);
-    box-shadow: 0 10px 35px rgba(0,0,0,.28);
+    box-shadow: 0 9px 28px rgba(0,0,0,.23);
     backdrop-filter: blur(12px);
+    transition: width .16s ease, border-radius .16s ease, box-shadow .16s ease, opacity .16s ease, transform .16s ease;
 }
 
-.answer-me-float.hidden {
+.answer-me-float.hidden,
+.answer-me-float.answer-me-user-hidden {
     display: none;
 }
 
 .answer-me-float-head {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 9px 10px 7px;
+    gap: 7px;
+    min-height: 38px;
+    padding: 8px 9px;
     font-weight: 800;
+    cursor: pointer;
+    user-select: none;
+}
+
+.answer-me-float-head > span {
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#answer_me_stop,
+#answer_me_hide {
+    flex: none;
+    width: 27px;
+    height: 27px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 8px;
+    background: rgba(127,127,127,.08);
+    color: inherit;
+    cursor: pointer;
+    line-height: 1;
+    opacity: .72;
+}
+
+#answer_me_stop:hover,
+#answer_me_hide:hover {
+    opacity: 1;
+    background: rgba(127,127,127,.15);
+}
+
+#answer_me_stop {
+    font-size: .75em;
+}
+
+#answer_me_hide {
+    font-size: 1.15em;
 }
 
 .answer-me-float-meta {
-    padding: 0 10px 8px;
-    font-size: .82em;
-    opacity: .64;
-    border-bottom: 1px solid var(--SmartThemeBorderColor, rgba(255,255,255,.12));
+    padding: 0 10px 7px;
+    font-size: .8em;
+    opacity: .66;
+    border-bottom: 1px solid var(--SmartThemeBorderColor, rgba(255,255,255,.10));
     font-variant-numeric: tabular-nums;
 }
 
-#answer_me_abort {
-    border: 0;
-    background: transparent;
-    color: inherit;
-    cursor: pointer;
-    font-size: 1.3em;
-    line-height: 1;
-    opacity: .75;
-}
-
-#answer_me_abort:hover {
-    opacity: 1;
-}
-
 .answer-me-float-body {
-    padding: 7px;
+    padding: 6px;
     overflow: auto;
-    max-height: calc(min(50vh, 450px) - 68px);
+    max-height: calc(min(46vh, 410px) - 64px);
 }
 
 .answer-me-status-row {
     display: grid;
-    grid-template-columns: 24px minmax(90px, .85fr) minmax(120px, 1.4fr) auto;
+    grid-template-columns: 22px minmax(0, 1fr) auto auto;
     gap: 6px;
-    padding: 7px 6px;
-    border-radius: 8px;
+    align-items: center;
+    padding: 7px 7px;
+    border-radius: 9px;
+    transition: background .14s ease, opacity .14s ease;
 }
 
 .answer-me-status-row + .answer-me-status-row {
@@ -205,30 +245,93 @@
 }
 
 .answer-me-status-row.is-winner {
-    background: rgba(127,127,127,.15);
-    font-weight: 700;
+    background: rgba(127,127,127,.17);
+    font-weight: 750;
+}
+
+.answer-me-status-row.is-started {
+    background: rgba(127,127,127,.07);
+}
+
+.answer-me-status-row.is-cold {
+    opacity: .76;
+}
+
+.answer-me-status-row.is-dead {
+    opacity: .56;
 }
 
 .answer-me-status-name,
 .answer-me-status-msg {
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
+.answer-me-status-name {
+    font-weight: 650;
+}
+
 .answer-me-status-msg {
-    opacity: .78;
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: rgba(127,127,127,.08);
+    opacity: .82;
+    font-size: .82em;
 }
 
 .answer-me-status-time {
     opacity: .55;
+    font-size: .82em;
     font-variant-numeric: tabular-nums;
 }
 
 .answer-me-idle,
 .answer-me-empty {
-    padding: 10px;
+    padding: 9px;
     text-align: center;
+}
+
+/* 待机时只留一颗小药丸，不长期占着一整张 debug 卡。 */
+.answer-me-float.is-idle {
+    width: auto;
+    max-width: min(290px, calc(100vw - 24px));
+    border-radius: 999px;
+    box-shadow: 0 5px 18px rgba(0,0,0,.16);
+}
+
+.answer-me-float.is-idle .answer-me-float-head {
+    min-height: 34px;
+    padding: 5px 7px 5px 10px;
+}
+
+.answer-me-float.is-idle .answer-me-float-meta,
+.answer-me-float.is-idle .answer-me-float-body,
+.answer-me-float.is-idle #answer_me_stop {
+    display: none !important;
+}
+
+.answer-me-float.is-idle #answer_me_hide {
+    width: 24px;
+    height: 24px;
+    background: transparent;
+}
+
+/* 比赛中点标题栏可临时收成一条，不影响请求。 */
+.answer-me-float.answer-me-manual-compact {
+    width: auto;
+    max-width: min(330px, calc(100vw - 24px));
+    border-radius: 999px;
+}
+
+.answer-me-float.answer-me-manual-compact .answer-me-float-meta,
+.answer-me-float.answer-me-manual-compact .answer-me-float-body {
+    display: none;
+}
+
+.answer-me-float.is-retry {
+    box-shadow: 0 8px 28px rgba(0,0,0,.26);
 }
 
 @media (max-width: 700px) {
@@ -240,10 +343,30 @@
         right: 8px;
         bottom: 64px;
         width: calc(100vw - 16px);
+        max-height: min(43vh, 380px);
+    }
+
+    .answer-me-float.is-idle,
+    .answer-me-float.answer-me-manual-compact {
+        width: auto;
+        max-width: calc(100vw - 16px);
     }
 
     .answer-me-status-row {
-        grid-template-columns: 22px minmax(78px, .8fr) minmax(100px, 1.2fr) auto;
-        font-size: .9em;
+        grid-template-columns: 22px minmax(0, 1fr) auto;
+        grid-template-areas:
+            "icon name time"
+            ". msg msg";
+        row-gap: 3px;
+        font-size: .92em;
     }
+
+    .answer-me-status-icon { grid-area: icon; }
+    .answer-me-status-name { grid-area: name; }
+    .answer-me-status-msg {
+        grid-area: msg;
+        justify-self: start;
+        max-width: 100%;
+    }
+    .answer-me-status-time { grid-area: time; }
 }
