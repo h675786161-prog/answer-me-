@@ -1,0 +1,226 @@
+.answer-me-settings {
+    margin: 10px 0;
+    padding: 12px;
+    border: 1px solid var(--SmartThemeBorderColor, rgba(255,255,255,.12));
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--SmartThemeBlurTintColor, #222) 86%, transparent);
+}
+
+.answer-me-head,
+.answer-me-toolbar,
+.answer-me-profile,
+.answer-me-check-row,
+.answer-me-switch-row,
+.answer-me-status-row {
+    display: flex;
+    align-items: center;
+}
+
+.answer-me-head {
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.answer-me-title {
+    font-weight: 800;
+    font-size: 1.05em;
+}
+
+.answer-me-subtitle,
+.answer-me-profile-meta,
+.answer-me-note,
+.answer-me-idle,
+.answer-me-profile-state {
+    opacity: .72;
+    font-size: .88em;
+}
+
+.answer-me-note {
+    line-height: 1.55;
+    margin: 8px 0 12px;
+}
+
+.answer-me-toolbar {
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.answer-me-profile-title {
+    font-weight: 700;
+    margin: 8px 0 6px;
+}
+
+.answer-me-profiles {
+    display: grid;
+    gap: 6px;
+    max-height: 280px;
+    overflow: auto;
+    padding-right: 2px;
+}
+
+.answer-me-profile {
+    gap: 8px;
+    padding: 8px 9px;
+    border-radius: 9px;
+    background: rgba(127,127,127,.08);
+    cursor: pointer;
+}
+
+.answer-me-profile:hover {
+    background: rgba(127,127,127,.14);
+}
+
+.answer-me-profile.is-disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+.answer-me-profile-main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+
+.answer-me-profile-name,
+.answer-me-profile-meta {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.answer-me-profile-state {
+    flex: none;
+}
+
+.answer-me-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 12px 0;
+}
+
+.answer-me-grid label {
+    display: grid;
+    gap: 4px;
+}
+
+.answer-me-grid input {
+    width: 100%;
+}
+
+.answer-me-check-row,
+.answer-me-switch-row {
+    gap: 7px;
+}
+
+.answer-me-check-row {
+    margin: 7px 0;
+}
+
+.answer-me-float {
+    position: fixed;
+    right: 14px;
+    bottom: 72px;
+    z-index: 9999;
+    width: min(390px, calc(100vw - 24px));
+    max-height: min(46vh, 420px);
+    overflow: hidden;
+    border-radius: 13px;
+    border: 1px solid var(--SmartThemeBorderColor, rgba(255,255,255,.16));
+    background: color-mix(in srgb, var(--SmartThemeBlurTintColor, #181818) 94%, transparent);
+    box-shadow: 0 10px 35px rgba(0,0,0,.28);
+    backdrop-filter: blur(12px);
+}
+
+.answer-me-float.hidden {
+    display: none;
+}
+
+.answer-me-float-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 10px;
+    font-weight: 800;
+    border-bottom: 1px solid var(--SmartThemeBorderColor, rgba(255,255,255,.12));
+}
+
+#answer_me_abort {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-size: 1.3em;
+    line-height: 1;
+    opacity: .75;
+}
+
+#answer_me_abort:hover {
+    opacity: 1;
+}
+
+.answer-me-float-body {
+    padding: 7px;
+    overflow: auto;
+    max-height: calc(min(46vh, 420px) - 42px);
+}
+
+.answer-me-status-row {
+    display: grid;
+    grid-template-columns: 24px minmax(90px, .85fr) minmax(120px, 1.4fr) auto;
+    gap: 6px;
+    padding: 7px 6px;
+    border-radius: 8px;
+}
+
+.answer-me-status-row + .answer-me-status-row {
+    margin-top: 3px;
+}
+
+.answer-me-status-row.is-winner {
+    background: rgba(127,127,127,.15);
+    font-weight: 700;
+}
+
+.answer-me-status-name,
+.answer-me-status-msg {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.answer-me-status-msg {
+    opacity: .78;
+}
+
+.answer-me-status-time {
+    opacity: .55;
+    font-variant-numeric: tabular-nums;
+}
+
+.answer-me-idle,
+.answer-me-empty {
+    padding: 10px;
+    text-align: center;
+}
+
+@media (max-width: 700px) {
+    .answer-me-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .answer-me-float {
+        right: 8px;
+        bottom: 64px;
+        width: calc(100vw - 16px);
+    }
+
+    .answer-me-status-row {
+        grid-template-columns: 22px minmax(78px, .8fr) minmax(100px, 1.2fr) auto;
+        font-size: .9em;
+    }
+}
