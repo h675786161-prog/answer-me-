@@ -1,9 +1,10 @@
 (() => {
     'use strict';
 
-    const VERSION = '0.2.2-beta.4';
+    const VERSION = '0.2.3-beta.5';
     const SETTINGS_SELECTORS = ['#extensions_settings2', '#extensions_settings', '#extensions_settings_content'];
     const BRIDGE_FLAG = '__answerMeChatCompletionBridgeV4';
+    const COLLAPSE_KEY = 'answerMe.settingsCollapsed';
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
     function findSettingsHost() {
@@ -51,9 +52,111 @@
             const checkbox = row.querySelector('input[type="checkbox"]');
             const state = row.querySelector('.answer-me-profile-state');
             if (!checkbox || checkbox.value !== currentId) continue;
-            if (state) state.textContent = '当前酒馆 · 自动参赛';
+            // 只在内容真的变化时改 DOM，避免 MutationObserver 自己触发自己。
+            if (state && state.textContent !== '当前酒馆 · 自动参赛') {
+                state.textContent = '当前酒馆 · 自动参赛';
+            }
             row.dataset.answerMeCurrent = '1';
         }
+    }
+
+    function installSettingsCollapse() {
+        const wrapper = document.querySelector('#answer_me_settings');
+        const head = wrapper?.querySelector('.answer-me-head');
+        if (!wrapper || !head || wrapper.dataset.answerMeCollapseBound === '1') return false;
+
+        wrapper.dataset.answerMeCollapseBound = '1';
+
+        if (!document.querySelector('#answer_me_collapse_style')) {
+            const style = document.createElement('style');
+            style.id = 'answer_me_collapse_style';
+            style.textContent = `
+                .answer-me-settings.answer-me-collapsed > :not(.answer-me-head) {
+                    display: none !important;
+                }
+                .answer-me-collapse-btn {
+                    flex: 0 0 auto;
+                    min-width: 34px;
+                    height: 32px;
+                    padding: 0 9px;
+                    border: 1px solid var(--SmartThemeBorderColor, rgba(255,255,255,.14));
+                    border-radius: 9px;
+                    background: rgba(127,127,127,.08);
+                    color: inherit;
+                    cursor: pointer;
+                    font-size: 1.05em;
+                    line-height: 1;
+                }
+                .answer-me-collapse-btn:hover {
+                    background: rgba(127,127,127,.15);
+                }
+                .answer-me-title-block {
+                    min-width: 0;
+                    flex: 1;
+                    cursor: pointer;
+                }
+                .answer-me-settings.answer-me-collapsed {
+                    padding-bottom: 9px;
+                }
+                .answer-me-settings.answer-me-collapsed .answer-me-head {
+                    margin-bottom: 0;
+                }
+                @media (max-width: 700px) {
+                    .answer-me-collapse-btn {
+                        min-width: 32px;
+                        height: 30px;
+                        padding: 0 8px;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        const titleBlock = head.firstElementChild;
+        if (titleBlock) titleBlock.classList.add('answer-me-title-block');
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'answer-me-collapse-btn';
+        button.setAttribute('aria-label', '折叠 Answer Me 设置');
+        head.appendChild(button);
+
+        const readStored = () => {
+            try {
+                const stored = localStorage.getItem(COLLAPSE_KEY);
+                // 第一次安装默认折叠，避免设置页一打开就是一大坨。
+                return stored === null ? true : stored === '1';
+            } catch {
+                return true;
+            }
+        };
+
+        const setCollapsed = (collapsed, persist = true) => {
+            wrapper.classList.toggle('answer-me-collapsed', collapsed);
+            button.textContent = collapsed ? '▸' : '▾';
+            button.title = collapsed ? '展开 Answer Me 设置' : '折叠 Answer Me 设置';
+            button.setAttribute('aria-expanded', String(!collapsed));
+            if (persist) {
+                try { localStorage.setItem(COLLAPSE_KEY, collapsed ? '1' : '0'); } catch {}
+            }
+        };
+
+        const toggle = () => setCollapsed(!wrapper.classList.contains('answer-me-collapsed'));
+
+        button.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            toggle();
+        });
+
+        // 点标题也能展开/折叠；不会碰右侧“启用赛马”的开关。
+        titleBlock?.addEventListener('click', (event) => {
+            event.preventDefault();
+            toggle();
+        });
+
+        setCollapsed(readStored(), false);
+        return true;
     }
 
     function bindChatCompletionBridge() {
@@ -116,10 +219,12 @@
                 refreshDisplayedVersion();
                 bindChatCompletionBridge();
                 markCurrentProfile();
+                installSettingsCollapse();
                 showLoadedIndicator();
 
                 const box = document.querySelector('#answer_me_profiles');
-                if (box) {
+                if (box && box.dataset.answerMeCurrentObserver !== '1') {
+                    box.dataset.answerMeCurrentObserver = '1';
                     new MutationObserver(() => markCurrentProfile())
                         .observe(box, { childList: true, subtree: true });
                 }
