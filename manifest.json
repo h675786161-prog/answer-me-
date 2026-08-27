@@ -3,10 +3,10 @@
   "loading_order": 20,
   "requires": [],
   "optional": [],
-  "js": "index.js",
+  "js": "index-v2.js",
   "css": "style.css",
   "author": "h675786161-prog",
-  "version": "0.1.0-beta.1",
+  "version": "0.2.0-beta.2",
   "homePage": "https://github.com/h675786161-prog/answer-me-",
   "auto_update": true
 }
