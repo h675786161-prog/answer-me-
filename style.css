@@ -31,7 +31,8 @@
 .answer-me-profile-meta,
 .answer-me-note,
 .answer-me-idle,
-.answer-me-profile-state {
+.answer-me-profile-state,
+.answer-me-grid-note {
     opacity: .72;
     font-size: .88em;
 }
@@ -102,9 +103,24 @@
     margin: 12px 0;
 }
 
-.answer-me-grid label {
+.answer-me-grid label,
+.answer-me-grid-note {
     display: grid;
     gap: 4px;
+}
+
+.answer-me-grid-note {
+    align-content: center;
+    min-height: 46px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    background: rgba(127,127,127,.06);
+}
+
+.answer-me-grid-note strong {
+    opacity: .9;
+    font-size: .95em;
+    font-variant-numeric: tabular-nums;
 }
 
 .answer-me-grid input {
@@ -125,8 +141,8 @@
     right: 14px;
     bottom: 72px;
     z-index: 9999;
-    width: min(390px, calc(100vw - 24px));
-    max-height: min(46vh, 420px);
+    width: min(410px, calc(100vw - 24px));
+    max-height: min(50vh, 450px);
     overflow: hidden;
     border-radius: 13px;
     border: 1px solid var(--SmartThemeBorderColor, rgba(255,255,255,.16));
@@ -144,9 +160,16 @@
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    padding: 9px 10px;
+    padding: 9px 10px 7px;
     font-weight: 800;
+}
+
+.answer-me-float-meta {
+    padding: 0 10px 8px;
+    font-size: .82em;
+    opacity: .64;
     border-bottom: 1px solid var(--SmartThemeBorderColor, rgba(255,255,255,.12));
+    font-variant-numeric: tabular-nums;
 }
 
 #answer_me_abort {
@@ -166,7 +189,7 @@
 .answer-me-float-body {
     padding: 7px;
     overflow: auto;
-    max-height: calc(min(46vh, 420px) - 42px);
+    max-height: calc(min(50vh, 450px) - 68px);
 }
 
 .answer-me-status-row {
