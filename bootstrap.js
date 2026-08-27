@@ -1,7 +1,7 @@
 (() => {
     'use strict';
 
-    const VERSION = '0.2.3-beta.5';
+    const VERSION = '0.2.4-beta.6';
     const SETTINGS_SELECTORS = ['#extensions_settings2', '#extensions_settings', '#extensions_settings_content'];
     const BRIDGE_FLAG = '__answerMeChatCompletionBridgeV4';
     const COLLAPSE_KEY = 'answerMe.settingsCollapsed';
@@ -25,12 +25,9 @@
     }
 
     function extensionBaseUrl() {
-        // Module script 下 document.currentScript 可能为空，所以直接从已加载的扩展 script 标签找自己。
         const script = [...document.querySelectorAll('script[src]')]
             .find(el => String(el.src).includes('/answer-me-/bootstrap.js'));
         if (script?.src) return new URL('.', script.src);
-
-        // SillyTavern 第三方扩展固定路径兜底。
         return new URL('/scripts/extensions/third-party/answer-me-/', window.location.origin);
     }
 
@@ -52,7 +49,6 @@
             const checkbox = row.querySelector('input[type="checkbox"]');
             const state = row.querySelector('.answer-me-profile-state');
             if (!checkbox || checkbox.value !== currentId) continue;
-            // 只在内容真的变化时改 DOM，避免 MutationObserver 自己触发自己。
             if (state && state.textContent !== '当前酒馆 · 自动参赛') {
                 state.textContent = '当前酒馆 · 自动参赛';
             }
@@ -71,42 +67,19 @@
             const style = document.createElement('style');
             style.id = 'answer_me_collapse_style';
             style.textContent = `
-                .answer-me-settings.answer-me-collapsed > :not(.answer-me-head) {
-                    display: none !important;
-                }
+                .answer-me-settings.answer-me-collapsed > :not(.answer-me-head) { display: none !important; }
                 .answer-me-collapse-btn {
-                    flex: 0 0 auto;
-                    min-width: 34px;
-                    height: 32px;
-                    padding: 0 9px;
+                    flex: 0 0 auto; min-width: 34px; height: 32px; padding: 0 9px;
                     border: 1px solid var(--SmartThemeBorderColor, rgba(255,255,255,.14));
-                    border-radius: 9px;
-                    background: rgba(127,127,127,.08);
-                    color: inherit;
-                    cursor: pointer;
-                    font-size: 1.05em;
-                    line-height: 1;
+                    border-radius: 9px; background: rgba(127,127,127,.08); color: inherit;
+                    cursor: pointer; font-size: 1.05em; line-height: 1;
                 }
-                .answer-me-collapse-btn:hover {
-                    background: rgba(127,127,127,.15);
-                }
-                .answer-me-title-block {
-                    min-width: 0;
-                    flex: 1;
-                    cursor: pointer;
-                }
-                .answer-me-settings.answer-me-collapsed {
-                    padding-bottom: 9px;
-                }
-                .answer-me-settings.answer-me-collapsed .answer-me-head {
-                    margin-bottom: 0;
-                }
+                .answer-me-collapse-btn:hover { background: rgba(127,127,127,.15); }
+                .answer-me-title-block { min-width: 0; flex: 1; cursor: pointer; }
+                .answer-me-settings.answer-me-collapsed { padding-bottom: 9px; }
+                .answer-me-settings.answer-me-collapsed .answer-me-head { margin-bottom: 0; }
                 @media (max-width: 700px) {
-                    .answer-me-collapse-btn {
-                        min-width: 32px;
-                        height: 30px;
-                        padding: 0 8px;
-                    }
+                    .answer-me-collapse-btn { min-width: 32px; height: 30px; padding: 0 8px; }
                 }
             `;
             document.head.appendChild(style);
@@ -124,7 +97,6 @@
         const readStored = () => {
             try {
                 const stored = localStorage.getItem(COLLAPSE_KEY);
-                // 第一次安装默认折叠，避免设置页一打开就是一大坨。
                 return stored === null ? true : stored === '1';
             } catch {
                 return true;
@@ -149,13 +121,77 @@
             toggle();
         });
 
-        // 点标题也能展开/折叠；不会碰右侧“启用赛马”的开关。
         titleBlock?.addEventListener('click', (event) => {
             event.preventDefault();
             toggle();
         });
 
         setCollapsed(readStored(), false);
+        return true;
+    }
+
+    function installRacePopupMode() {
+        const panel = document.querySelector('#answer_me_float_panel');
+        if (!panel || panel.dataset.answerMePopupBound === '1') return false;
+        panel.dataset.answerMePopupBound = '1';
+
+        if (!document.querySelector('#answer_me_popup_style')) {
+            const style = document.createElement('style');
+            style.id = 'answer_me_popup_style';
+            style.textContent = `
+                #answer_me_float_panel.answer-me-race-popup {
+                    z-index: 2147483000 !important;
+                    animation: answerMePopIn .16s ease-out;
+                }
+                @keyframes answerMePopIn {
+                    from { opacity: 0; transform: translateY(-8px) scale(.985); }
+                    to { opacity: 1; transform: translateY(0) scale(1); }
+                }
+                @media (max-width: 700px) {
+                    #answer_me_float_panel.answer-me-float {
+                        position: fixed !important;
+                        top: calc(env(safe-area-inset-top, 0px) + 64px) !important;
+                        left: 8px !important;
+                        right: 8px !important;
+                        bottom: auto !important;
+                        width: auto !important;
+                        max-width: none !important;
+                        max-height: 44vh !important;
+                        border-radius: 14px !important;
+                        box-shadow: 0 10px 34px rgba(0,0,0,.32) !important;
+                    }
+                    #answer_me_float_panel .answer-me-float-body {
+                        max-height: calc(44vh - 68px) !important;
+                    }
+                    #answer_me_float_panel .answer-me-status-row {
+                        grid-template-columns: 22px minmax(72px,.85fr) minmax(92px,1.25fr) auto !important;
+                        font-size: .88em !important;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        const syncVisibility = () => {
+            const api = window.AnswerMe;
+            const settings = api?.settings;
+            const round = api?.round;
+            const retry = api?.retry;
+            const shouldShow = !!settings?.enabled
+                && !!settings?.showFloatingStatus
+                && (!!round || !!retry?.timer);
+
+            panel.classList.toggle('hidden', !shouldShow);
+            panel.classList.toggle('answer-me-race-popup', shouldShow);
+        };
+
+        // 只观察核心自己写入的文字/行，不观察 class/attribute。
+        // 我们这里只改 class，所以不会形成 Observer → 自己 → Observer 的死循环。
+        const observer = new MutationObserver(syncVisibility);
+        observer.observe(panel, { childList: true, subtree: true, characterData: true });
+        panel._answerMePopupObserver = observer;
+
+        syncVisibility();
         return true;
     }
 
@@ -171,13 +207,9 @@
 
         source.on(chatReadyEvent, async (generateData) => {
             try {
-                // OpenAI / Custom Chat Completion 走 CHAT_COMPLETION_SETTINGS_READY，
-                // 不会走核心原本监听的 GENERATE_AFTER_DATA。
-                // 把酒馆已经组装好的 messages 原样桥接过去，避免重复拼 preset。
                 const prompt = Array.isArray(generateData?.messages)
                     ? structuredClone(generateData.messages)
                     : (generateData?.prompt ?? '');
-
                 await source.emit(afterDataEvent, { prompt }, false);
             } catch (error) {
                 console.error('[💢 Answer Me] Chat Completion bridge failed', error);
@@ -189,16 +221,12 @@
         return true;
     }
 
-    function showLoadedIndicator() {
+    function hideIdlePanel() {
         const panel = document.querySelector('#answer_me_float_panel');
         if (!panel) return;
-        if (panel.classList.contains('hidden')) {
-            const meta = panel.querySelector('#answer_me_float_meta');
-            const body = panel.querySelector('#answer_me_float_body');
-            if (meta) meta.textContent = '已加载 · 赛马未启用';
-            if (body) body.innerHTML = '<div class="answer-me-idle">💢 Answer Me 已就位 · 去扩展设置开启赛马</div>';
-            panel.classList.remove('hidden');
-            panel.dataset.answerMeBootIndicator = '1';
+        const api = window.AnswerMe;
+        if (!api?.round && !api?.retry?.timer) {
+            panel.classList.add('hidden');
         }
     }
 
@@ -220,7 +248,8 @@
                 bindChatCompletionBridge();
                 markCurrentProfile();
                 installSettingsCollapse();
-                showLoadedIndicator();
+                installRacePopupMode();
+                hideIdlePanel();
 
                 const box = document.querySelector('#answer_me_profiles');
                 if (box && box.dataset.answerMeCurrentObserver !== '1') {
