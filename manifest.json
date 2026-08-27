@@ -3,10 +3,10 @@
   "loading_order": 20,
   "requires": [],
   "optional": [],
-  "js": "bootstrap-v12.js",
+  "js": "bootstrap-v13.js",
   "css": "style.css",
   "author": "h675786161-prog",
-  "version": "0.3.0-beta.12",
+  "version": "0.3.1-beta.13",
   "homePage": "https://github.com/h675786161-prog/answer-me-",
   "auto_update": true
 }
