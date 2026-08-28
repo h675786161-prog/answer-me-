@@ -17,6 +17,7 @@
     await inject('compact-ui-v23.js','compact-ui-v23');
     await inject('exact-model-picker-v24.js','exact-model-picker-v24');
     await inject('diagnostics-v32.js','diagnostics-v32');
+    await inject('diagnostics-release-v33.js','diagnostics-release-v33');
     await inject('diagnostics-ui-v26.js','diagnostics-ui-v26');
     await inject('diagnostic-filter-v28.js','diagnostic-filter-v28');
     await inject('side-fallback-v28.js','side-fallback-v28');
