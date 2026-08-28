@@ -31,14 +31,10 @@
   }
 
   async function boot() {
-    // v34 stops loading the old bridge / quality sweep / side-fallback monkeypatch /
-    // settlement guard / popup observer / watchdog tower. Race lifecycle lives in one core.
+    // v34: no old bridge, watchdog tower, global quality sweep, fallback monkeypatch,
+    // settlement getContext patch, popup observers, or polling UI stack.
     await inject('race-core-v34.js', 'race-core-v34');
-    await inject('model-router-v13.js', 'model-router-v13');
-    await inject('keyword-router-v18.js', 'keyword-router-v18');
-    await inject('site-selector-v16.js', 'site-selector-v16');
-    await inject('compact-ui-v23.js', 'compact-ui-v23');
-    await inject('exact-model-picker-v24.js', 'exact-model-picker-v24');
+    await inject('control-panel-v34.js', 'control-panel-v34');
     await inject('diagnostics-v34.js', 'diagnostics-v34');
 
     let n = 0;
@@ -50,7 +46,7 @@
         badge();
       }
     }, 250);
-    console.log(`[💢 Answer Me] wrapper ${VERSION} ready · lean race core`);
+    console.log(`[💢 Answer Me] wrapper ${VERSION} ready · core + event-driven controls + race-only diagnostics`);
   }
 
   boot().catch(error => {
