@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION = '0.6.2-beta.46';
+  const VERSION = '0.6.3-beta.47';
 
   function baseUrl() {
     const script = [...document.querySelectorAll('script[src]')]
@@ -37,9 +37,11 @@
     await inject('request-mirror-v40.js', 'request-mirror-v40');
     await inject('timeout-policy-v43.js', 'timeout-policy-v43');
 
-    // Register before the legacy core so zero selected side racers still lets
-    // the native ST request enter the core's single-candidate retry path.
-    await inject('native-only-bridge-v46.js', 'native-only-bridge-v46');
+    // v47 waits until the native-only bridge has actually registered its event
+    // hooks before the legacy race core is loaded. This removes the mobile/event
+    // timing race where a single native API could start without a status round.
+    await inject('native-only-bridge-v47.js', 'native-only-bridge-v47');
+    await window.AnswerMeNativeOnlyBridgeV47?.ready;
     await inject('race-core-v35.js', 'race-core-v35');
 
     await inject('event-order-bridge-v37.js', 'event-order-bridge-v37');
@@ -58,6 +60,7 @@
     await inject('manual-retract-v44.js', 'manual-retract-v44');
     await inject('diagnostics-v35.js', 'diagnostics-v35');
     await inject('settings-collapse-v36.js', 'settings-collapse-v36');
+    await inject('mobile-stop-popup-v47.js', 'mobile-stop-popup-v47');
 
     let tries = 0;
     const sync = () => {
@@ -70,7 +73,7 @@
       if ((!window.AnswerMe || !document.querySelector('#answer_me_settings')) && tries < 40) setTimeout(sync, 200);
     };
     sync();
-    console.log(`[💢 Answer Me] wrapper ${VERSION} ready · native main lane is always present, side racers are optional`);
+    console.log(`[💢 Answer Me] wrapper ${VERSION} ready · single API status and manual stop hardening enabled`);
   }
 
   boot().catch(error => {
